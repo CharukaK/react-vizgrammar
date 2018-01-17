@@ -26,6 +26,11 @@ export function getDefaultColorScale() {
         '#6633CC', '#E67300', '#8B0707', '#329262', '#5574A6', '#3B3EAC'];
 }
 
+export function getXScale(type) {
+    if (type.toLowerCase() === 'linear' || type.toLowerCase() === 'ordinal') return 'linear';
+    else return 'time';
+}
+
 /**
  * Generate the chart array that contains the information on visualization of the charts in config.
  * @param {Array} charts chart configuration provided.
@@ -39,9 +44,11 @@ export function generateChartArray(charts) {
             dataSetNames: {},
             mode: chart.mode,
             orientation: chart.orientation,
+            color: Object.prototype.hasOwnProperty.call(chart, 'color'),
             colorScale: Array.isArray(chart.colorScale) ? chart.colorScale : getDefaultColorScale(),
             colorIndex: 0,
             id: chartIndex,
+            y: chart.y,
         };
     });
 }

@@ -18,7 +18,8 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { generateChartArray } from './chart-helper';
+import { getDefaultColorScale, getXScale } from './chart-helper';
+import VizGError from '../VizGError';
 
 export default class BasicChart2 extends React.Component {
     constructor(props) {
@@ -26,9 +27,13 @@ export default class BasicChart2 extends React.Component {
         this.state = {
             chartArray: [],
             dataSets: {},
+            xScale: 'linear',
         };
 
+        this.chartConfig = undefined;
+
         this.visualizeData = this.visualizeData.bind(this);
+        this.generateChartArray = this.generateChartArray.bind(this);
     }
 
     componentDidMount() {
@@ -36,16 +41,91 @@ export default class BasicChart2 extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
+        const { config } = nextProps;
+        if (this.chartConfig === undefined || !(_.isEqual(config, this.chartConfig))) {
+            this.state.chartArray = [];
+            this.state.dataSets = {};
+            this.chartConfig = config;
+        }
 
+        this.visualizeData(nextProps);
     }
 
     visualizeData(props) {
-        let { config, metadata, data } = props;
-        let { chartArray, dataSets } = this.state;
-        chartArray = generateChartArray(config.charts);
+        const { config, metadata, data } = props;
+        let { chartArray, dataSets, xScale } = this.state;
 
+        if (chartArray.length === 0) chartArray = this.generateChartArray(config.charts); // generate chart array from the config.
+        const xIndex = metadata.names.indexOf(config.x);
 
-        this.setState({ chartArray });
+        if (_.keys(dataSets).length === 0) {
+            xScale = getXScale(metadata.types[xIndex]);
+        }
+
+        if (xScale !== getXScale(metadata.types[xIndex])) {
+            throw VizGError('BasicChart', "Provided metadata doesn't match the previous metadata.");
+        }
+
+        chartArray.forEach((chart) => {
+            const yIndex = metadata.names.indexOf(chart.y);
+            const colorIndex = metadata.names.indexOf(chart.colorCategoryName);
+
+            if (xIndex < 0 || yIndex < 0) {
+                throw new VizGError('BasicChart', 'Axis name not found in metadata');
+            }
+
+            let dataSet = {};
+            if (chart.color) {
+                if (colorIndex < 0) {
+                    throw new VizGError('BasicChart', 'Color category not found in metadata.');
+                }
+                dataSet = _.groupBy(data.map(
+                    datum => ({ x: datum[xIndex], y: datum[yIndex], color: datum[colorIndex] })), d => d.color);
+
+                _.difference(_.keys(dataSet), _.keys(chart.dataSetNames)).forEach((key) => {
+                    const colorDomIn = _.indexOf(chart.colorDomain, key);
+                    if (chart.colorIndex >= chart.colorScale.length) {
+                        chart.colorIndex = 0;
+                    }
+                    if (colorDomIn < 0) {
+                        chart.dataSetNames[key] = chart.colorScale[chart.colorIndex++];
+                    } else if (colorDomIn > chart.colorScale.length) {
+                        chart.dataSetNames[key] = chart.colorScale[0];
+                    } else {
+                        chart.dataSetNames[key] = chart.colorScale[colorDomIn];
+                    }
+                });
+            } else {
+                dataSet[chart.y] = data.map(datum => ({ x: datum[xIndex], y: datum[yIndex] }));
+                chart.dataSetNames[chart.y] = chart.colorScale[chart.colorIndex];
+            }
+
+            _.mergeWith(dataSets, dataSet, (objValue, srcValue) => {
+                if (_.isArray(objValue)) {
+                    return objValue.concat(srcValue);
+                }
+            });
+        });
+
+        this.setState({ chartArray, dataSets });
+    }
+
+    generateChartArray(charts) {
+        return charts.map((chart, chartIndex) => {
+            return {
+                type: chart.type,
+                dataSetNames: {},
+                mode: chart.mode,
+                orientation: chart.orientation,
+                color: Object.prototype.hasOwnProperty.call(chart, 'color'),
+                colorCategoryName: chart.color || '',
+                colorScale: Array.isArray(chart.colorScale) ? chart.colorScale : getDefaultColorScale(),
+                colorDomain: chart.colorDomain || [],
+                colorIndex: chartIndex,
+                id: chartIndex,
+                y: chart.y,
+            };
+        });
     }
 
     render() {
