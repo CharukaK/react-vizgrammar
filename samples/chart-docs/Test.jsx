@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { VictoryChart, VictoryArea, VictoryVoronoiContainer, VictoryTooltip, VictoryGroup } from 'victory';
-import VizG from '../../src/components/BasicChart2';
+import VizG from '../../src/components/BasicCharts/BasicChart2';
 
 export default class Test extends React.Component {
     constructor(props) {
@@ -34,12 +34,12 @@ export default class Test extends React.Component {
 
 
     componentDidMount() {
-        // setInterval(() => {
-        //     this.setState({
-        //         data: [[Math.round(Math.random() * 100), Math.round(Math.random() * 100), 1, 'Piston'], [Math.round(Math.random() * 100), Math.round(Math.random() * 100), 1, 'rotary']],
-        //         timer: this.state.timer + 1
-        //     });
-        // }, 1000);
+        setInterval(() => {
+            this.setState({
+                data: [[this.state.timer, Math.round(Math.random() * 100), 1, 'piston'], [this.state.timer, Math.round(Math.random() * 100), 1, 'rotary']],
+                timer: this.state.timer + 1
+            });
+        }, 1000);
 
 
 
@@ -65,7 +65,7 @@ export default class Test extends React.Component {
 
     sparkLineConfig = {
         x: 'rpm',
-        charts: [{ type: 'area', y: 'torque', color: 'EngineType', colorScale: ['red','green','grey'], colorDomain: ['','piston'] }],
+        charts: [{ type: 'area', y: 'torque', mode: 'stacked',color: 'EngineType', colorScale: ['red', 'green', 'grey'], colorDomain: ['', 'piston'] }],
         maxLength: 30,
         width: 800,
         height: 400,
@@ -214,26 +214,26 @@ export default class Test extends React.Component {
                 }} /> */}
                 {/* <VizG config={this.sparkLineConfig} metadata={this.metadata} data={this.state.staticDataSet} /> */}
                 <button onClick={() => { this.setState({ chartConfig: this.sparkLineConfig2 }); }}>Change</button>
-                <VizG config={this.state.chartConfig} metadata={this.metadata} data={this.staticDataSet} />
+                <VizG config={this.state.chartConfig} metadata={this.metadata} data={this.state.data} />
                 {/*<VictoryChart*/}
-                    {/*scale={{ x: 'time' }}*/}
-                    {/*domain={{ x: null }}*/}
-                    {/*containerComponent={*/}
-                        {/*<VictoryVoronoiContainer*/}
-                            {/*voronoiDimension="x"*/}
-                            {/*voronoiBlacklist={["first"]}*/}
-                            {/*labels={(d) => `y:${d.y}`}*/}
-                            {/*labelComponent={*/}
-                                {/*<VictoryTooltip*/}
-                                    {/*y={150}*/}
-                                    {/*flyoutStyle={{ fill: "white" }}*/}
-                                    {/*style={[{ fill: "green" }, { fill: "magenta" }]}*/}
-                                {/*/>*/}
-                            {/*}*/}
-                        {/*/>*/}
-                    {/*}*/}
+                {/*scale={{ x: 'time' }}*/}
+                {/*domain={{ x: null }}*/}
+                {/*containerComponent={*/}
+                {/*<VictoryVoronoiContainer*/}
+                {/*voronoiDimension="x"*/}
+                {/*voronoiBlacklist={["first"]}*/}
+                {/*labels={(d) => `y:${d.y}`}*/}
+                {/*labelComponent={*/}
+                {/*<VictoryTooltip*/}
+                {/*y={150}*/}
+                {/*flyoutStyle={{ fill: "white" }}*/}
+                {/*style={[{ fill: "green" }, { fill: "magenta" }]}*/}
+                {/*/>*/}
+                {/*}*/}
+                {/*/>*/}
+                {/*}*/}
                 {/*>*/}
-                    {/*{chartComponents}*/}
+                {/*{chartComponents}*/}
                 {/*</VictoryChart>*/}
 
             </div>

@@ -32,11 +32,46 @@ import NumChart from './chart-docs/NumberChartSample';
 import Table from './chart-docs/TableChartSamples';
 import Test from './chart-docs/Test';
 
+
 const theme = createMuiTheme({
     palette: {
         type: 'light',
     },
 });
+/* <Router>
+        <MuiThemeProvider theme={theme} >
+            <ScrollReset>
+                <Route exact path={'/'} component={App} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path={'/line-charts'} component={LineCharts} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path={'/area-charts'} component={AreaCharts} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path={'/bar-charts'} component={BarCharts} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path={'/scatter-charts'} component={ScatterChart} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path="/map-charts" component={Maps} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path="/pie-charts" component={Arcs} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path="/number-charts" component={NumChart} />
+            </ScrollReset>
+            <ScrollReset>
+                <Route path="/table-charts" component={Table} />
+            </ScrollReset>i
+	    <ScrollReset>
+                <Route path="/test" component={Test} />
+            </ScrollReset>
+        </MuiThemeProvider>
+    </Router> */
 
 ReactDOM.render(
     <Router>

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-path = require('path');
+var path = require('path');
 
 module.exports = {
     devtool: 'source-map',
@@ -32,7 +32,7 @@ module.exports = {
                 loader: 'json-loader',
             },
             {
-                exclude: path.resolve(__dirname, './node_modules'),
+                exclude: [path.resolve(__dirname, './node_modules'), path.resolve(__dirname, '../node_modules')],
                 test: /\.(js|jsx)$/,
                 loader: 'babel-loader',
             },

@@ -18,8 +18,11 @@
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { getDefaultColorScale, getXScale } from './chart-helper';
-import VizGError from '../VizGError';
+import { VictoryChart, VictoryVoronoiContainer, VictoryLine, VictoryTooltip, VictoryStack, VictoryGroup } from 'victory';
+import { getDefaultColorScale, getXScale } from '../chart-helper';
+import VizGError from '../../VizGError';
+import generateLineComponent from './LineChartComponent';
+import generateAreaComponent from './AreaChartComponent';
 
 export default class BasicChart2 extends React.Component {
     constructor(props) {
@@ -106,7 +109,6 @@ export default class BasicChart2 extends React.Component {
                 }
             });
         });
-
         this.setState({ chartArray, dataSets });
     }
 
@@ -116,7 +118,7 @@ export default class BasicChart2 extends React.Component {
                 type: chart.type,
                 dataSetNames: {},
                 mode: chart.mode,
-                orientation: chart.orientation,
+                orientation: chart.orientation || 'bottom',
                 color: Object.prototype.hasOwnProperty.call(chart, 'color'),
                 colorCategoryName: chart.color || '',
                 colorScale: Array.isArray(chart.colorScale) ? chart.colorScale : getDefaultColorScale(),
@@ -129,8 +131,66 @@ export default class BasicChart2 extends React.Component {
     }
 
     render() {
+        let legendComponents = [];
+        let ignoredComponents = [];
+        const { config, height, width } = this.props;
+        const { chartArray, dataSets, xScale } = this.state;
+        const chartComponents = [];
+
+
+        chartArray.forEach((chart, chartIndex) => {
+            const localChartSet = [];
+            let dataSetLength = 1;
+            _.keys(chart.dataSetNames).forEach((dsName) => {
+                const component = {
+                    line: () => {
+                        return generateLineComponent(config, chartIndex, chart.dataSetNames[dsName], dataSets[dsName], null, xScale);
+                    },
+                    area: () => {
+                        return generateAreaComponent(config, chartIndex, chart.dataSetNames[dsName], dataSets[dsName], null, xScale);
+                    },
+                    bar: () => {
+                        // barLocal.push()
+                    },
+                };
+                if (dataSetLength < dataSets[dsName].length) dataSetLength = dataSets[dsName].length;
+                localChartSet.push(component[chart.type]());
+            });
+            
+            if (chart.mode === 'stacked') {
+                chartComponents.push(
+                    (<VictoryStack>
+                        {localChartSet}
+                    </VictoryStack>));
+                console.info(chartComponents);
+            } else if (chart.type === 'bar') {
+                const barWidth =
+                    ((chart.orientation === 'bottom' ?
+                        height : (width - 280)) / (dataSetLength * (localChartSet.length > 1 ? localChartSet.length : 2))) - 3;
+                chartComponents.push((
+                    <VictoryGroup
+                        horizontal={(chart.orientation === 'left')}
+                        offset={barWidth}
+                        style={{ data: { width: barWidth } }}
+                    >
+                        {localChartSet}
+                    </VictoryGroup>
+                ));
+            } else {
+                chartComponents.push(...localChartSet);
+            }
+        });
+
         return (
-            <div />
+            <VictoryChart
+                containerComponent={
+                    <VictoryVoronoiContainer
+                        voronoiBlacklist={['ignore']}
+                    />
+                }
+            >
+                {chartComponents}
+            </VictoryChart>
         );
     }
 }
