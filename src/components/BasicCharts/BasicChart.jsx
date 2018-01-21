@@ -19,7 +19,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { VictoryChart, VictoryVoronoiContainer, VictoryLine, VictoryTooltip, VictoryStack, VictoryGroup } from 'victory';
-import { getDefaultColorScale, getXScale } from '../chart-helper';
+import { getDefaultColorScale, getXScale, trimDataSet } from '../chart-helper';
 import VizGError from '../../VizGError';
 import generateLineComponent from './LineChartComponent';
 import generateAreaComponent from './AreaChartComponent';
@@ -109,6 +109,8 @@ export default class BasicChart2 extends React.Component {
                 }
             });
         });
+
+        if (config.maxLength) dataSets = trimDataSet(dataSets, config.maxLength);
         this.setState({ chartArray, dataSets });
     }
 
@@ -156,7 +158,7 @@ export default class BasicChart2 extends React.Component {
                 if (dataSetLength < dataSets[dsName].length) dataSetLength = dataSets[dsName].length;
                 localChartSet.push(component[chart.type]());
             });
-            
+
             if (chart.mode === 'stacked') {
                 chartComponents.push(
                     (<VictoryStack>

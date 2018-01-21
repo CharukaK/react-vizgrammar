@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { VictoryChart, VictoryArea, VictoryVoronoiContainer, VictoryTooltip, VictoryGroup } from 'victory';
-import VizG from '../../src/components/BasicCharts/BasicChart2';
+import VizG from '../../src/components/BasicCharts/BasicChart';
 
 export default class Test extends React.Component {
     constructor(props) {

@@ -16,6 +16,8 @@
  * under the License.
  */
 
+import _ from 'lodash';
+
 /**
  * Returns an array of default color set to be used in the visualizations.
  * @returns {Array} Array of colors in hex format.
@@ -51,4 +53,14 @@ export function generateChartArray(charts) {
             y: chart.y,
         };
     });
+}
+
+export function trimDataSet(dataSets, maxLength) {
+    _.keys(_.pickBy(dataSets, obj => obj.length > maxLength)).forEach((key) => {
+        const lengthDiff = dataSets[key].length - maxLength;
+
+        dataSets[key].splice(0, lengthDiff);
+    });
+
+    return dataSets;
 }
