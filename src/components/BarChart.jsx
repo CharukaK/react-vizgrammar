@@ -205,6 +205,7 @@ export default class BarChart extends BaseChart {
 
         return (
             <ChartContainer
+                barWidth={barWidth}
                 width={width}
                 height={height}
                 xScale={xScale}

@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { VictoryChart, VictoryZoomContainer, VictoryVoronoiContainer, VictoryContainer, VictoryAxis, VictoryLabel } from 'victory';
-import { timeFormat } from 'd3';
+import { timeFormat, scaleTime, extent, axisBottom, select } from 'd3';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import lightTheme from './resources/themes/victoryLightTheme';
@@ -66,6 +66,12 @@ export default class ChartContainer extends React.Component {
             domainPadding = (domainPadding > 50) ? (domainPadding + 30) : domainPadding;
         }
 
+        console.info(dataSets[Object.keys(dataSets)[0]]);
+
+        const xScaleTest = scaleTime().domain(extent(dataSets[Object.keys(dataSets)[0]] || [], datum => datum.x)).range([0, width - (130 + this.props.barWidth)]);
+
+        const xAxis = axisBottom().scale(xScaleTest).ticks(dataSets[Object.keys(dataSets)[0]] ? dataSets[Object.keys(dataSets)[0]].length : 0);
+
         return (
             <VictoryChart
                 width={width}
@@ -74,11 +80,14 @@ export default class ChartContainer extends React.Component {
                 padding={
                     (() => {
                         if (config.legend === true || arcChart) {
-                            if (!config.legendOrientation) return {
-                                left: 100, top: 30, bottom: xAxisPaddingBottom,
-                                right: 180
-                            };
-                            else if (config.legendOrientation === 'left') {
+                            if (!config.legendOrientation) {
+                                return {
+                                    left: 100,
+                                    top: 30,
+                                    bottom: xAxisPaddingBottom,
+                                    right: 180,
+                                };
+                            } else if (config.legendOrientation === 'left') {
                                 return { left: 300, top: 30, bottom: xAxisPaddingBottom, right: 30 };
                             } else if (config.legendOrientation === 'right') {
                                 return { left: 100, top: 30, bottom: xAxisPaddingBottom, right: 180 };
@@ -88,6 +97,7 @@ export default class ChartContainer extends React.Component {
                                 return { left: 100, top: 30, bottom: (100 + xAxisPaddingBottom), right: 30 };
                             } else return { left: 100, top: 30, bottom: xAxisPaddingBottom, right: 180 };
                         } else {
+                            console.info('nope');
                             return { left: 100, top: 30, bottom: xAxisPaddingBottom, right: 30 };
                         }
                     })()
@@ -114,149 +124,158 @@ export default class ChartContainer extends React.Component {
                 style={{ parent: { overflow: 'visible' } }}
 
             >
+                <g
+                    className={'xAxis'}
+                    ref={(node) => {
+                        select(node).call(xAxis);
+                    }}
+                    style={{
+                        transform: `translate(${100+(this.props.barWidth/2)}px, ${height - 50}px)`,
+                    }}
+                />
                 {this.props.children}
-                {
-                    disableAxes ?
-                        [
-                            (<VictoryAxis
-                                key="xAxis"
-                                crossAxis
-                                gridComponent={<g />}
-                                tickComponent={<g />}
-                                tickLabelComponent={<g />}
-                                axisComponent={<g />}
-                            />),
-                            (<VictoryAxis
-                                key="yAxis"
-                                dependentAxis
-                                crossAxis
-                                gridComponent={<g />}
-                                tickComponent={<g />}
-                                tickLabelComponent={<g />}
-                                axisComponent={<g />}
-                            />),
-                        ] :
-                        [
-                            (<VictoryAxis
-                                key="xAxis"
-                                crossAxis
-                                theme={currentTheme}
-                                style={{
-                                    axis: {
-                                        stroke: config.style ?
-                                            config.style.axisColor :
-                                            currentTheme.axis.style.axis.stroke,
-                                    },
-                                    axisLabel: {
-                                        fill: config.style ?
-                                            config.style.axisLabelColor :
-                                            currentTheme.axis.style.axisLabel.fill,
-                                    },
-                                }}
-                                gridComponent={config.disableVerticalGrid ?
-                                    <g /> :
-                                    <line
-                                        style={{
-                                            stroke: config.style ?
-                                                config.style.gridColor || currentTheme.axis.style.grid.stroke :
-                                                currentTheme.axis.style.grid.stroke,
-                                            strokeOpacity: currentTheme.axis.style.grid.strokeOpacity,
-                                            fill: currentTheme.axis.style.grid.fill,
-                                        }}
-                                    />
-                                }
-                                label={
-                                    horizontal ?
-                                        config.yAxisLabel || ((config.charts.length > 1 ? '' : config.charts[0].y)) :
-                                        config.xAxisLabel || config.x
-                                }
-                                tickFormat={(() => {
-                                    if (xScale === 'time' && config.timeFormat) {
-                                        return (date) => {
-                                            return timeFormat(config.timeFormat)(new Date(date));
-                                        };
-                                    } else if (isOrdinal && config.charts[0].type === 'bar') {
-                                        return (data) => {
-                                            if ((data - Math.floor(data)) !== 0) {
-                                                return '';
-                                            } else {
-                                                return Number(data) <= arr.length ? arr[Number(data) - 1].x : '';
-                                            }
-                                        };
-                                    } else {
-                                        return null;
-                                    }
-                                })()}
-                                standalone={false}
-                                tickLabelComponent={
-                                    <VictoryLabel
-                                        angle={config.style ? config.style.xAxisTickAngle || 0 : 0}
-                                        theme={currentTheme}
-                                        style={{
-                                            fill: config.style ?
-                                                config.style.tickLabelColor : currentTheme.axis.style.tickLabels.fill,
-                                        }}
-                                    />
-                                }
-                                tickCount={(isOrdinal && config.charts[0].type === 'bar') ? arr.length :
-                                    config.xAxisTickCount}
-                            />),
-                            (<VictoryAxis
-                                key="yAxis"
-                                dependentAxis
-                                crossAxis
-                                theme={currentTheme}
-                                style={{
-                                    axis: {
-                                        stroke: config.style ?
-                                            config.style.axisColor :
-                                            currentTheme.axis.style.axis.stroke,
-                                    },
-                                    axisLabel: {
-                                        fill: config.style ?
-                                            config.style.axisLabelColor :
-                                            currentTheme.axis.style.axisLabel.fill,
-                                    },
-                                }}
-                                gridComponent={
-                                    config.disableHorizontalGrid ?
-                                        <g /> :
-                                        <line
-                                            style={{
-                                                stroke: config.gridColor || currentTheme.axis.style.grid.stroke,
-                                                strokeOpacity: currentTheme.axis.style.grid.strokeOpacity,
-                                                fill: currentTheme.axis.style.grid.fill,
-                                            }}
-                                        />
-                                }
-                                label={
-                                    horizontal ?
-                                        config.xAxisLabel || config.x :
-                                        config.yAxisLabel || (config.charts.length > 1 ? '' : config.charts[0].y)
-                                }
-                                standalone={false}
-                                tickLabelComponent={
-                                    <VictoryLabel
-                                        angle={config.style ? config.style.yAxisTickAngle || 0 : 0}
-                                        theme={currentTheme}
-                                        style={{
-                                            fill: config.style ?
-                                                config.style.tickLabelColor :
-                                                currentTheme.axis.style.tickLabels.fill,
-                                        }}
-                                    />
-                                }
-                                axisLabelComponent={
-                                    <VictoryLabel
-                                        angle={0}
-                                        x={100}
-                                        y={25}
-                                    />
-                                }
-                                tickCount={config.yAxisTickCount}
-                            />),
-                        ]
-                }
+                {/* { */}
+                {/* disableAxes ? */}
+                {/* [ */}
+                {/* (<VictoryAxis */}
+                {/* key="xAxis" */}
+                {/* crossAxis */}
+                {/* gridComponent={<g />} */}
+                {/* tickComponent={<g />} */}
+                {/* tickLabelComponent={<g />} */}
+                {/* axisComponent={<g />} */}
+                {/* />), */}
+                {/* (<VictoryAxis */}
+                {/* key="yAxis" */}
+                {/* dependentAxis */}
+                {/* crossAxis */}
+                {/* gridComponent={<g />} */}
+                {/* tickComponent={<g />} */}
+                {/* tickLabelComponent={<g />} */}
+                {/* axisComponent={<g />} */}
+                {/* />), */}
+                {/* ] : */}
+                {/* [ */}
+                {/* (<VictoryAxis */}
+                {/* key="xAxis" */}
+                {/* crossAxis */}
+                {/* theme={currentTheme} */}
+                {/* style={{ */}
+                {/* axis: { */}
+                {/* stroke: config.style ? */}
+                {/* config.style.axisColor : */}
+                {/* currentTheme.axis.style.axis.stroke, */}
+                {/* }, */}
+                {/* axisLabel: { */}
+                {/* fill: config.style ? */}
+                {/* config.style.axisLabelColor : */}
+                {/* currentTheme.axis.style.axisLabel.fill, */}
+                {/* }, */}
+                {/* }} */}
+                {/* gridComponent={config.disableVerticalGrid ? */}
+                {/* <g /> : */}
+                {/* <line */}
+                {/* style={{ */}
+                {/* stroke: config.style ? */}
+                {/* config.style.gridColor || currentTheme.axis.style.grid.stroke : */}
+                {/* currentTheme.axis.style.grid.stroke, */}
+                {/* strokeOpacity: currentTheme.axis.style.grid.strokeOpacity, */}
+                {/* fill: currentTheme.axis.style.grid.fill, */}
+                {/* }} */}
+                {/* /> */}
+                {/* } */}
+                {/* label={ */}
+                {/* horizontal ? */}
+                {/* config.yAxisLabel || ((config.charts.length > 1 ? '' : config.charts[0].y)) : */}
+                {/* config.xAxisLabel || config.x */}
+                {/* } */}
+                {/* tickFormat={(() => { */}
+                {/* if (xScale === 'time' && config.timeFormat) { */}
+                {/* return (date) => { */}
+                {/* return timeFormat(config.timeFormat)(new Date(date)); */}
+                {/* }; */}
+                {/* } else if (isOrdinal && config.charts[0].type === 'bar') { */}
+                {/* return (data) => { */}
+                {/* if ((data - Math.floor(data)) !== 0) { */}
+                {/* return ''; */}
+                {/* } else { */}
+                {/* return Number(data) <= arr.length ? arr[Number(data) - 1].x : ''; */}
+                {/* } */}
+                {/* }; */}
+                {/* } else { */}
+                {/* return null; */}
+                {/* } */}
+                {/* })()} */}
+                {/* standalone={false} */}
+                {/* tickLabelComponent={ */}
+                {/* <VictoryLabel */}
+                {/* angle={config.style ? config.style.xAxisTickAngle || 0 : 0} */}
+                {/* theme={currentTheme} */}
+                {/* style={{ */}
+                {/* fill: config.style ? */}
+                {/* config.style.tickLabelColor : currentTheme.axis.style.tickLabels.fill, */}
+                {/* }} */}
+                {/* /> */}
+                {/* } */}
+                {/* tickCount={(isOrdinal && config.charts[0].type === 'bar') ? arr.length : */}
+                {/* config.xAxisTickCount} */}
+                {/* />), */}
+                {/* (<VictoryAxis */}
+                {/* key="yAxis" */}
+                {/* dependentAxis */}
+                {/* crossAxis */}
+                {/* theme={currentTheme} */}
+                {/* style={{ */}
+                {/* axis: { */}
+                {/* stroke: config.style ? */}
+                {/* config.style.axisColor : */}
+                {/* currentTheme.axis.style.axis.stroke, */}
+                {/* }, */}
+                {/* axisLabel: { */}
+                {/* fill: config.style ? */}
+                {/* config.style.axisLabelColor : */}
+                {/* currentTheme.axis.style.axisLabel.fill, */}
+                {/* }, */}
+                {/* }} */}
+                {/* gridComponent={ */}
+                {/* config.disableHorizontalGrid ? */}
+                {/* <g /> : */}
+                {/* <line */}
+                {/* style={{ */}
+                {/* stroke: config.gridColor || currentTheme.axis.style.grid.stroke, */}
+                {/* strokeOpacity: currentTheme.axis.style.grid.strokeOpacity, */}
+                {/* fill: currentTheme.axis.style.grid.fill, */}
+                {/* }} */}
+                {/* /> */}
+                {/* } */}
+                {/* label={ */}
+                {/* horizontal ? */}
+                {/* config.xAxisLabel || config.x : */}
+                {/* config.yAxisLabel || (config.charts.length > 1 ? '' : config.charts[0].y) */}
+                {/* } */}
+                {/* standalone={false} */}
+                {/* tickLabelComponent={ */}
+                {/* <VictoryLabel */}
+                {/* angle={config.style ? config.style.yAxisTickAngle || 0 : 0} */}
+                {/* theme={currentTheme} */}
+                {/* style={{ */}
+                {/* fill: config.style ? */}
+                {/* config.style.tickLabelColor : */}
+                {/* currentTheme.axis.style.tickLabels.fill, */}
+                {/* }} */}
+                {/* /> */}
+                {/* } */}
+                {/* axisLabelComponent={ */}
+                {/* <VictoryLabel */}
+                {/* angle={0} */}
+                {/* x={100} */}
+                {/* y={25} */}
+                {/* /> */}
+                {/* } */}
+                {/* tickCount={config.yAxisTickCount} */}
+                {/* />), */}
+                {/* ] */}
+                {/* } */}
             </VictoryChart>
         );
     }

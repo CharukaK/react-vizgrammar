@@ -34,6 +34,7 @@ import NumChart from './chart-docs/NumberChartSample';
 import Table from './chart-docs/TableChartSamples';
 import GettingStarted from './GettingStarted';
 import './styles/style.css';
+import Test from './chart-docs/Test';
 
 const darkTheme = createMuiTheme({
     palette: {
@@ -149,6 +150,13 @@ class AppRoute extends React.Component {
                             <Route path="/samples" component={() => {
                                 return (
                                     <App theme={this.state.theme} />
+                                )
+                            }} />
+                        </ScrollReset>
+                        <ScrollReset>
+                            <Route path="/test" component={() => {
+                                return (
+                                    <Test theme={this.state.theme} />
                                 )
                             }} />
                         </ScrollReset>
