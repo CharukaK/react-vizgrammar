@@ -155,30 +155,37 @@ export default class BaseChart extends React.Component {
         // generate chart array from the config.
         if (chartArray.length === 0) chartArray = BaseChart.generateChartArray(config.charts);
 
-        const xIndex = metadata.names.indexOf(config.x);
+        const xIndex = metadata.names.indexOf(config.x); // Get the index of x-axis data defined in the metadata
         if (_.keys(dataSets).length === 0) {
+            // if there are no data in the dataSets variable which is stored in the state then the chart must be
+            // initiating so the information like type of the xAxis values('time', linear or ordinal) has to be
+            // initialized.
             if (!isOrdinal) isOrdinal = metadata.types[xIndex].toLowerCase() === 'ordinal';
             xScale = BaseChart.getXScale(metadata.types[xIndex]);
             xAxisType = metadata.types[xIndex];
         }
         if (xScale !== BaseChart.getXScale(metadata.types[xIndex])) {
+            // when the props are changing if the type of the xAxis data changes throw error
             throw VizGError('BasicChart', "Provided metadata doesn't match the previous metadata.");
         }
 
         let dataSet = {};
 
         chartArray.forEach((chart) => {
-            const yIndex = metadata.names.indexOf(chart.y);
-            const colorIndex = metadata.names.indexOf(chart.colorCategoryName);
+            const yIndex = metadata.names.indexOf(chart.y); // Get the index of y-axis data defined in the metadata
+            const colorIndex = metadata.names.indexOf(chart.colorCategoryName); // Get the index of color category defined in the metadata
 
             if (xIndex < 0 || yIndex < 0) {
+                // throw error if the indexes are zero as these are important in retrieving data.
                 throw new VizGError('BasicChart', 'Axis name not found in metadata');
             }
 
-            if (chart.color) {
-                if (colorIndex < 0) {
+            if (chart.color) { // categorize according to color if the color category is defined.
+                if (colorIndex < 0) { // if the color category is not defined properly in the metadata.
                     throw new VizGError('BasicChart', 'Color category not found in metadata.');
                 }
+                // since the data is received in a tabular way metadata separately and data separately. we will combine
+                // them and then group them into the color category.
                 dataSet = _.groupBy(data.map(
                     datum => ({
                         x: datum[xIndex] instanceof Date ? datum[xIndex].getTime() : datum[xIndex],
@@ -187,14 +194,24 @@ export default class BaseChart extends React.Component {
                         yName: metadata.names[yIndex],
                     })), d => d.color);
 
+                // check if there are different color categories than to existing ones, and if there are initialize the
+                // way that is colored
                 _.difference(_.keys(dataSet), _.keys(chart.dataSetNames)).forEach((key) => {
+                    // check if colorDomain is defined in the chart configuration
                     const colorDomIn = _.indexOf(chart.colorDomain, key);
+
+                    // if the colorIndex of the chart object has reached the colorScale length defined reset it back
+                    // to zero
                     if (chart.colorIndex >= chart.colorScale.length) {
                         chart.colorIndex = 0;
                     }
+
                     if (colorDomIn < 0) {
+                        // if colorDomain index returned a value less than zero assign the next color in the color scale
                         chart.dataSetNames[key] = chart.colorScale[chart.colorIndex++];
                     } else if (colorDomIn > chart.colorScale.length) {
+                        // if the colorDomainIndex exceeds the colorscale defined assign the first color in the
+                        // colorScale
                         chart.dataSetNames[key] = chart.colorScale[0];
                     } else {
                         chart.dataSetNames[key] = chart.colorScale[colorDomIn];

@@ -31,14 +31,19 @@ import ComposedChart from './components/ComposedChart';
 import ArcCharts from './components/ArcCharts';
 import ScatterPlot from './components/ScatterPlot';
 
+/**
+ * Library entry point this class will be imported by the user and will provide the configuration, metadata and data
+ * through props.
+ */
 class VizG extends Component {
     /**
-     * Function will render a chart based on the given chart.
+     * Function will render a chart based on the given config
      * @param {String} chartType Chart type of the chart.
      * @param {Object} config Chart configuration provided by the user
      * @param {Array} data Data provided by the user
      * @param {Object} metadata Metadata related to the data provided
      * @param {Function} onClick OnClick function provided by the user
+     * @return {React.Component} A react component to render the given chart
      * @private
      */
     _getChartComponent(chartType, config, data, metadata, onClick) {
@@ -78,7 +83,7 @@ class VizG extends Component {
 
     /**
      * Check if the chart contains configuration of a mixed chart.
-     * @param config
+     * @param config {Object} Config provided by the user
      * @returns {string}
      * @private
      */

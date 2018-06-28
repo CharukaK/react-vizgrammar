@@ -16,6 +16,9 @@
  * under the License.
  */
 
+/**
+ * Class to be used when throwing errors of the library.
+ */
 export default class VizGError extends Error {
     constructor(context, ...params) {
         super(...params);
