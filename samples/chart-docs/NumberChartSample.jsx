@@ -129,6 +129,18 @@ export default class NumberChartSample extends React.Component {
                                     <li><strong>showPercentage</strong> - Show difference with the previous value as a
                                         percentage</li>
                                     <li><strong>showDifference</strong> - Show Decimal places in the Number</li>
+                                    <li>
+                                        <strong>titleFontSize</strong> - Set fontSize for the title of the Number chart
+                                    </li>
+                                    <li>
+                                        <strong>valueFontSize</strong> - Set fontSize for the value of the Number chart
+                                    </li>
+                                    <li>
+                                        <strong>diffFontSize</strong> - Set fontSize for the difference of the Number chart
+                                    </li>
+                                    <li>
+                                        <strong>percentFontSize</strong> - Set fontSize for the percentage difference of the Number chart
+                                    </li>
                                 </ul>
                             </div>
                         </ChartWrapper>
