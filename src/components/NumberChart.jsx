@@ -75,7 +75,7 @@ export default class NumberCharts extends React.Component {
         const { prevValue, value } = this.state;
         const highValueColor = config.highValueColor || currentTheme.number.style.labels.highValue.fill;
         const lowValueColor = config.lowValueColor || currentTheme.number.style.labels.lowValue.fill;
-
+        // width / 20
         return (
             <svg height="100%" width="100%" viewBox={`0 0 ${width} ${height}`}>
                 <VictoryLabel
@@ -84,7 +84,10 @@ export default class NumberCharts extends React.Component {
                     x="50%"
                     y="25%"
                     text={config.title}
-                    style={{ fill: currentTheme.number.style.labels.title.fill, fontSize: width / 20 }}
+                    style={{
+                        fill: currentTheme.number.style.labels.title.fill,
+                        fontSize: config.titleFontSize || (width / 20),
+                    }}
                 />
                 <VictoryLabel
                     textAnchor="middle"
@@ -92,7 +95,10 @@ export default class NumberCharts extends React.Component {
                     x="50%"
                     y="40%"
                     text={(value === null ? value : (config.showDecimal === true ? value.toFixed(3) : value.toFixed(0)))}
-                    style={{ fill: currentTheme.number.style.labels.mainValue.fill, fontSize: width / 15 }}
+                    style={{
+                        fill: currentTheme.number.style.labels.mainValue.fill,
+                        fontSize: config.valueFontSize || (width / 15),
+                    }}
                 />
                 {
                     config.showDifference ? [
@@ -110,7 +116,10 @@ export default class NumberCharts extends React.Component {
                                     return '-';
                                 }
                             })()}
-                            style={{ fill: currentTheme.number.style.labels.difference.fill, fontSize: width / 30 }}
+                            style={{
+                                fill: currentTheme.number.style.labels.difference.fill,
+                                fontSize: config.diffFontSize || width / 30,
+                            }}
                         />),
                         (
                             <VictoryLabel
@@ -123,7 +132,10 @@ export default class NumberCharts extends React.Component {
                                         (Math.abs(Number((prevValue - value)))).toFixed(3) :
                                         (Math.abs(Number((prevValue - value)))).toFixed(0)
                                 }
-                                style={{ fill: currentTheme.number.style.labels.difference.fill, fontSize: width / 30 }}
+                                style={{
+                                    fill: currentTheme.number.style.labels.difference.fill,
+                                    fontSize: config.diffFontSize || width / 30,
+                                }}
                             />
                         )] : null
                 }
@@ -136,7 +148,10 @@ export default class NumberCharts extends React.Component {
                             x="49%"
                             y="58%"
                             text={(Math.abs((100 * ((value - prevValue) / prevValue))).toFixed(2)) + '%'}
-                            style={{ fill: prevValue < value ? highValueColor : lowValueColor, fontSize: width / 30 }}
+                            style={{
+                                fill: prevValue < value ? highValueColor : lowValueColor,
+                                fontSize: config.percentFontSize || width / 30,
+                            }}
                         />),
                         (<VictoryLabel
                             key="incrementDecrementSymbol"
@@ -153,7 +168,10 @@ export default class NumberCharts extends React.Component {
                                     return '↓';
                                 }
                             })()}
-                            style={{ fill: prevValue < value ? highValueColor : lowValueColor, fontSize: width / 30 }}
+                            style={{
+                                fill: prevValue < value ? highValueColor : lowValueColor,
+                                fontSize: config.percentFontSize || width / 30,
+                            }}
                         />)] : null
                 }
 
