@@ -190,9 +190,16 @@ class MapChartConfigSample extends Component {
                                         </ul>
                                     </li>
                                     <li>
-                                        <strong>chloropethValueRange</strong> - If the range of values is known, user
-                                            can define the range of values that will be used for the colorScale of the
-                                            chloropeth map as an array. ex: [minVal, maxVal].
+                                        <strong>chloropethRangeUpperBound</strong> - If the range of values is known, user
+                                            can define the upper bound of values that will be used for the colorScale of the
+                                            chloropeth map as an array. if only upper bound is given library will calculate
+                                            the lower bound based on input data.
+                                    </li>
+                                    <li>
+                                        <strong>chloropethRangeLowerBound</strong> - If the range of values is known, user
+                                                can define the lower bound of values that will be used for the colorScale of the
+                                                chloropeth map as an array. if only lower bound is given library will calculate
+                                                the upper bound based on input data.
                                     </li>
                                 </ul>
                             </div>
