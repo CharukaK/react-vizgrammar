@@ -75,6 +75,14 @@ Sample data table would be like following:
         [9000, 81, 130, "Rotary"]
     ];
 ```
+### Events
+React VizGrammar supports `onClick` events, to use the onClick events user has to submit a function to the `onClick` prop of the react component.
+
+```jsx
+    <VizG config={config} data={data} metadata={metadata} onClick={(data) => { /* function to perform */ }} />
+```
+
+The submitted function should have a parameter if user wishes to retrieve the data related to the data point.
 
 ### Themes
 
